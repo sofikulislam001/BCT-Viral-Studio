@@ -6,6 +6,7 @@ import { getTrends } from "@/lib/trends";
 import { makeCaption } from "@/lib/ai";
 import { safeEqual } from "@/lib/auth";
 import { dhakaDayStart } from "@/lib/time";
+import { generateBackgroundPng } from "@/lib/imagegen";
 
 export const dynamic = "force-dynamic";
 
@@ -25,11 +26,11 @@ function wrapWords(text: string, max = 22) {
   if (line) lines.push(line);
   return lines.slice(0, 5);
 }
-function memeSvg(headline: string, subtext: string) {
+function memeSvg(headline: string, subtext: string, withBg = false) {
   const lines = wrapWords(headline, 22), sub = wrapWords(subtext, 32);
   const headlineSvg = lines.map((l, i) => `<text x="540" y="${420 + i * 94}" text-anchor="middle" font-size="68" font-weight="800" fill="#ffffff">${escapeXml(l)}</text>`).join("");
   const subSvg = sub.map((l, i) => `<text x="540" y="${760 + i * 58}" text-anchor="middle" font-size="38" font-weight="600" fill="#ddd6fe">${escapeXml(l)}</text>`).join("");
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#17122c"/><stop offset=".55" stop-color="#24134b"/><stop offset="1" stop-color="#090b17"/></linearGradient></defs><rect width="1080" height="1080" fill="url(#g)"/><rect x="36" y="36" width="1008" height="1008" fill="none" stroke="#a78bfa" stroke-width="8"/><text x="70" y="110" fill="#c4b5fd" font-family="Arial,sans-serif" font-size="38" font-weight="700">BCT • VIRAL STUDIO</text>${headlineSvg}${subSvg}<text x="540" y="960" text-anchor="middle" fill="#a78bfa" font-family="Arial,sans-serif" font-size="30" font-weight="700">FOLLOW • SHARE • LAUGH</text></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#17122c"/><stop offset=".55" stop-color="#24134b"/><stop offset="1" stop-color="#090b17"/></linearGradient></defs>${withBg ? `<rect width="1080" height="1080" fill="#090b17" fill-opacity="0.55"/>` : `<rect width="1080" height="1080" fill="url(#g)"/>`}<rect x="36" y="36" width="1008" height="1008" fill="none" stroke="#a78bfa" stroke-width="8"/><text x="70" y="110" fill="#c4b5fd" font-family="Arial,sans-serif" font-size="38" font-weight="700">BCT • VIRAL STUDIO</text>${headlineSvg}${subSvg}<text x="540" y="960" text-anchor="middle" fill="#a78bfa" font-family="Arial,sans-serif" font-size="30" font-weight="700">FOLLOW • SHARE • LAUGH</text></svg>`;
 }
 
 async function makeAutoPost(db: any) {
@@ -42,7 +43,10 @@ async function makeAutoPost(db: any) {
 
   const content = await makeCaption(trend.title);
   const svg = memeSvg(content.headline || trend.title, content.subtext || "এই পরিস্থিতিতে আমিই শুধু এমন নাকি? 😂");
-  const png = await sharp(Buffer.from(svg)).png().toBuffer();
+  const bg = await generateBackgroundPng(trend.title);
+  const png = bg
+    ? await sharp(bg).resize(1080, 1080, { fit: "cover" }).composite([{ input: Buffer.from(memeSvg(content.headline || trend.title, content.subtext || "এই পরিস্থিতিতে আমিই শুধু এমন নাকি? 😂", true)) }]).png().toBuffer()
+    : await sharp(Buffer.from(svg)).png().toBuffer();
   const bucket = process.env.SUPABASE_BUCKET || "bct-memes";
   const path = `auto/${Date.now()}-${randomUUID()}.png`;
   const { error: uploadError } = await db.storage.from(bucket).upload(path, png, { contentType: "image/png" });

@@ -17,9 +17,9 @@ export default function Home(){
  async function login(){setBusy(true);setError("");try{await api("/api/login",{method:"POST",body:JSON.stringify({password})});setAuthed(true);}catch(e:any){setError(e.message);}finally{setBusy(false);}}
  async function saveSettings(){setBusy(true);try{const j=await api("/api/settings",{method:"POST",body:JSON.stringify(settings)});setSettings(j.settings);setMessage("Settings saved");}catch(e:any){setError(e.message);}finally{setBusy(false);}}
  async function generate(){if(!topic.trim())return;setBusy(true);setError("");try{const g=await api("/api/generate",{method:"POST",body:JSON.stringify({topic})});setHeadline(g.headline);setSubtext(g.subtext);setCaption(g.caption);setHashtags((g.hashtags||[]).join(" "));setMessage("মিমের লেখা তৈরি হয়েছে");setTab("studio");}catch(e:any){setError(e.message);}finally{setBusy(false);}}
- function drawImage():string{
+ function drawImage(bg?:HTMLImageElement):string{
   const c=document.createElement("canvas");c.width=1080;c.height=1080;const x=c.getContext("2d")!;
-  const g=x.createLinearGradient(0,0,1080,1080);g.addColorStop(0,"#17122c");g.addColorStop(.55,"#24134b");g.addColorStop(1,"#090b17");x.fillStyle=g;x.fillRect(0,0,1080,1080);
+  const g=x.createLinearGradient(0,0,1080,1080);g.addColorStop(0,"#17122c");g.addColorStop(.55,"#24134b");g.addColorStop(1,"#090b17");x.fillStyle=g;x.fillRect(0,0,1080,1080);if(bg){x.drawImage(bg,0,0,1080,1080);x.fillStyle="rgba(9,11,23,0.55)";x.fillRect(0,0,1080,1080);}
   x.strokeStyle="#a78bfa";x.lineWidth=8;x.strokeRect(36,36,1008,1008);
   x.fillStyle="#c4b5fd";x.font="700 38px Arial";x.fillText("BCT • VIRAL STUDIO",70,110);
   x.fillStyle="#fff";x.textAlign="center";x.font="800 78px Arial";
@@ -29,7 +29,8 @@ export default function Home(){
   x.fillStyle="#a78bfa";x.font="700 30px Arial";x.fillText("FOLLOW • SHARE • LAUGH",540,940);
   return c.toDataURL("image/png");
  }
- async function queuePost(){setBusy(true);setError("");try{const data=drawImage();const up=await api("/api/assets",{method:"POST",body:JSON.stringify({dataUrl:data})});const j=await api("/api/posts",{method:"POST",body:JSON.stringify({topic,caption:caption+" "+hashtags,image_url:up.url,scheduled_at:schedule?new Date(schedule).toISOString():null,source:"BCT Studio"})});setImageUrl(up.url);setMessage("পোস্ট Queue-তে যোগ হয়েছে");await refresh();setTab("queue");}catch(e:any){setError(e.message);}finally{setBusy(false);}}
+ async function loadAiBg():Promise<HTMLImageElement|undefined>{try{const r=await api("/api/ai-background",{method:"POST",body:JSON.stringify({topic:headline||topic})});if(!r.dataUrl)return undefined;const img=new Image();img.src=r.dataUrl;await img.decode();return img;}catch{return undefined;}}
+ async function queuePost(){setBusy(true);setError("");try{const data=drawImage(await loadAiBg());const up=await api("/api/assets",{method:"POST",body:JSON.stringify({dataUrl:data})});const j=await api("/api/posts",{method:"POST",body:JSON.stringify({topic,caption:caption+" "+hashtags,image_url:up.url,scheduled_at:schedule?new Date(schedule).toISOString():null,source:"BCT Studio"})});setImageUrl(up.url);setMessage("পোস্ট Queue-তে যোগ হয়েছে");await refresh();setTab("queue");}catch(e:any){setError(e.message);}finally{setBusy(false);}}
  async function postAction(id:string,action:string){setBusy(true);try{await api(`/api/posts/${id}`,{method:"PATCH",body:JSON.stringify({action})});await refresh();setMessage(action==="publish"?"Facebook-এ প্রকাশিত হয়েছে":"Post rejected");}catch(e:any){setError(e.message);}finally{setBusy(false);}}
  async function logout(){await fetch("/api/logout",{method:"POST"});setAuthed(false);}
  if(!authed)return <main className="panel login"><div className="brand">BCT <span>VIRAL STUDIO</span></div><p className="muted">BANGLADESH CYBER TROOPS • ADMIN ACCESS</p><h2>Dashboard Login</h2><input className="field" type="password" placeholder="Dashboard password" value={password} onChange={e=>setPassword(e.target.value)}/><button className="btn" onClick={login} disabled={busy}>Unlock Dashboard</button>{error&&<p className="error">{error}</p>}<p className="small">Password is the DASHBOARD_PASSWORD value from your Vercel environment variables.</p></main>;
