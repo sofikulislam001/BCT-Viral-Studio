@@ -53,7 +53,7 @@ A mobile-friendly Bangla meme/photo publishing dashboard for the Facebook Page c
 - Redeploy after adding/changing environment variables.
 
 ## 5) Cron
-`vercel.json` requests a cron every 15 minutes. Vercel sends `Authorization: Bearer <CRON_SECRET>` for protected cron jobs when configured in the project settings. If your Vercel plan does not support Cron, use an external cron service with:
+`vercel.json` does not define a cron. Vercel Hobby plan only allows daily cron jobs, so the 15-minute schedule must come from an external cron service (see below). Vercel sends `Authorization: Bearer <CRON_SECRET>` for protected cron jobs when configured in the project settings. If your Vercel plan does not support Cron, use an external cron service with:
 `https://YOUR-DEPLOYMENT.vercel.app/api/cron?secret=YOUR_CRON_SECRET`
 Do not expose this URL publicly.
 

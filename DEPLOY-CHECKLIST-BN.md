@@ -37,3 +37,6 @@ Vercel → Project → Settings → Environment Variables-এ `.env.example`-এ
 6. পরীক্ষা সফল হলে Settings-এ Approval OFF করে Master Automation ও Photo Automation ON করতে পারবেন। এতে নির্ধারিত পোস্ট Cron-এর মাধ্যমে নিজে প্রকাশ হবে।
 
 **সতর্কতা:** API Token, service role key, password কখনো GitHub-এ বা Chat-এ দেবেন না। Video/Reels এখন বন্ধ এবং Coming Soon।
+
+
+**Cron:** Vercel Hobby plan-এ প্রতি ১৫ মিনিটের cron চলে না, তাই `vercel.json`-এ cron রাখা হয়নি। একটি বিনামূল্যের external cron service (যেমন cron-job.org) দিয়ে প্রতি ১৫ মিনিটে `https://YOUR-APP.vercel.app/api/cron` কল করুন এবং header-এ `Authorization: Bearer <CRON_SECRET>` দিন।
