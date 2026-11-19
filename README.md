@@ -35,7 +35,7 @@ A mobile-friendly Bangla meme/photo publishing dashboard for the Facebook Page c
 - Add the Facebook Login / relevant Page publishing products as required by Meta's current dashboard
 - Ensure the app/user has access to the target Page
 - Obtain a Page Access Token with the required Page permissions, including `pages_manage_posts` and the relevant Page read/list permissions
-- Set the Page ID to `61596421270250` (verify this is the intended Page)
+- Set the Page ID to `1389119647626527` (verify this is the intended Page)
 - Meta may require app review, business verification, or permissions approval. This app cannot bypass Meta requirements.
 - Test first with approval mode ON and one test post.
 

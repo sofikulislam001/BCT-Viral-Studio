@@ -10,7 +10,7 @@
 1. https://developers.facebook.com/ এ App তৈরি করুন।
 2. আপনার Page-এ আপনার অ্যাকাউন্টের যথেষ্ট access থাকতে হবে।
 3. Page publishing permission-সহ Page Access Token নিন। সাধারণত `pages_manage_posts` দরকার হয়; Page নির্বাচন/তথ্যের জন্য Meta-র চাওয়া অতিরিক্ত permission-ও লাগতে পারে।
-4. আপনার Page ID: `61596421270250` — সঠিক Page কি না যাচাই করুন।
+4. আপনার Page ID: `1389119647626527` — সঠিক Page কি না যাচাই করুন।
 5. Meta App Review/permission approval চাইলে Meta-র নির্দেশনা অনুসরণ করুন।
 
 ## C. Vercel
@@ -20,7 +20,7 @@ Vercel → Project → Settings → Environment Variables-এ `.env.example`-এ
 - `SUPABASE_URL`: Supabase URL
 - `SUPABASE_SERVICE_ROLE_KEY`: Supabase service role key
 - `SUPABASE_BUCKET`: `bct-memes`
-- `META_PAGE_ID`: `61596421270250`
+- `META_PAGE_ID`: `1389119647626527`
 - `META_PAGE_ACCESS_TOKEN`: Page Token
 - `META_GRAPH_VERSION`: `v23.0`
 - `CRON_SECRET`: আরেকটি দীর্ঘ random secret
